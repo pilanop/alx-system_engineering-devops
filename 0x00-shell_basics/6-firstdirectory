@@ -1,0 +1,2 @@
+#!/bin/bash
+export PATH=/tmp:$PATH mkdir my_first_directory
