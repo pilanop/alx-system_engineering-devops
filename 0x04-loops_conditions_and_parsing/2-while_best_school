@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# This is a bash shell script that prints the string "Best School" ten times.
+count=0
+while (( count < 10 )); do
+  echo Best School
+  (( count++ ))
+done
