@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # This is a bash shell script that prints the string "Best School" ten times but If 9, say Hi!.
 count=0
-while (( count < 10 )); do
-  if [ "$count" -eq 8 ]; then
+while (( count < 10 ));
+do
+  if [ "$count" -eq 8 ];
+  then
       echo "Hi"
   else
     echo "Best School"
