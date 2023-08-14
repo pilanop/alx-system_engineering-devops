@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # This script prints "Best School" to the standard output 10 times.
 count=0
-until [ $count -gt 10  ]; do
+until [ $count -ge 10  ]; do
     echo Best School
     (( count++ ))
 done
