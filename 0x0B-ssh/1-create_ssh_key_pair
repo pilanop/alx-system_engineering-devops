@@ -1,0 +1,3 @@
+#!/bin/bash
+# This script generates a RSA key pair with a given name and passphrase.
+ssh-keygen -t rsa -f "school" -N "betty"
