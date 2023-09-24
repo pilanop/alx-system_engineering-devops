@@ -1,0 +1,3 @@
+#!/bin/bash
+# Connects to a remote server 54.197.207.23
+ssh -i ~/.ssh/school ubuntu@54.197.207.23
