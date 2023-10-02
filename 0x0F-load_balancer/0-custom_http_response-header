@@ -1,9 +1,31 @@
 #!/usr/bin/env bash
 # Script that configures Nginx server with a custom header
-apt-get -y update
-apt-get -y install nginx
-echo "Hello World!" > /var/www/html/index.nginx-debian.html
-echo "Ceci n'est pas une page" > /usr/share/nginx/html/custom_404.html
-sed -i "s/server_name _;/server_name _;\n\trewrite ^\/redirect_me https:\/\/github.com\/pilanop permanent;\n\n\terror_page 404 \/custom_404.html;\n\tlocation = \/custom_404.html {\n\t\troot \/usr\/share\/nginx\/html;\n\t\tinternal;\n\t}/" /etc/nginx/sites-available/default
-sed -i "s/include \/etc\/nginx\/sites-enabled\/\*;/include \/etc\/nginx\/sites-enabled\/\*;\n\tadd_header X-Served-By \"$HOSTNAME\";/" /etc/nginx/nginx.conf
-service nginx start
+# Update the package list
+sudo apt update
+
+# Install Nginx if it's not already installed
+sudo apt install -y nginx
+
+# Get the hostname of the server
+server_hostname=$(hostname)
+
+# Create a custom Nginx configuration file for the custom header
+cat <<EOF | sudo tee /etc/nginx/conf.d/custom_response_header.conf
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        add_header X-Served-By "$server_hostname";
+        # Your other Nginx configuration directives go here
+    }
+}
+EOF
+
+# Test the Nginx configuration for syntax errors
+sudo nginx -t
+
+# If the configuration test is successful, reload Nginx to apply changes
+if [ $? -eq 0 ]; then
+    sudo systemctl reload nginx
+fi
