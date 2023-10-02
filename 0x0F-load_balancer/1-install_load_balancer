@@ -1,23 +1,49 @@
 #!/usr/bin/env bash
 # Installs and setup haproxy
 
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get -y update
-apt-get install -y haproxy=1.8.\*
+# Update the package list
+sudo apt update
 
-echo "ENABLED=1" > /etc/default/haproxy
+# Install HAProxy
+sudo apt install -y haproxy
 
-# Listen to web1 and web2 servers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-echo "
-   listen load_balancer
-   bind *:80
-   mode http
-   balance roundrobin
-   option httpclose
-   option forwardfor
-   server 57215-web-01 54.197.207.23:80 check
-   server 57215-web-02 35.168.8.185:80 check
-" >> /etc/haproxy/haproxy.cfg
+# Configure HAProxy
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOL
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
 
-service haproxy start
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+frontend http-in
+    bind *:80
+    default_backend servers
+
+backend servers
+    balance roundrobin
+    server web-01 [STUDENT_ID]-web-01:80 check
+    server web-02 [STUDENT_ID]-web-02:80 check
+EOL
+
+# Enable and start HAProxy service
+sudo systemctl enable haproxy
+sudo systemctl start haproxy
+
+# Allow HAProxy management via init script
+sudo sed -i 's/^ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+# Restart HAProxy to apply changes
+sudo systemctl restart haproxy
