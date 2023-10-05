@@ -1,29 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Usage: ./1-world_wide_web <domain> <subdomain>
+# Display information about subdomains.
 
-# Function to retrieve DNS information for a subdomain
-get_dns_info() {
-    local domain="$1"
-    local subdomain="$2"
-    local record_type="$3"
-
-    if [[ -z "$subdomain" ]]; then
-        subdomain="www lb-01 web-01 web-02"
-    fi
-
-    for sub in $subdomain; do
-        result=$(dig "$sub.$domain" | awk '/ANSWER SECTION:/ {getline; print}')
-        echo "The subdomain $sub is a $record_type record and points to $result"
-    done
+domain_information () {
+    line=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
+    echo "$2 $line" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
 }
 
-# Check for correct number of arguments
-if [[ $# -lt 1 ]]; then
-    echo "Usage: $0 <domain> [subdomain]"
-    exit 1
+if [ "$#" == 1 ]
+then
+  domain_information "$1" "www"
+  domain_information "$1" "lb-01"
+  domain_information "$1" "web-01"
+  domain_information "$1" "web-02"
+elif [ "$#" == 2 ]
+then
+  domain_information "$1" "$2"
 fi
-
-domain="$1"
-subdomain="$2"
-record_type=$(dig "$domain" | awk '/ANSWER SECTION:/ {getline; print $4}')
-
-get_dns_info "$domain" "$subdomain" "$record_type"
